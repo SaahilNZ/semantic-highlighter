@@ -1,0 +1,9 @@
+.semanticClass {
+    background: lime;
+    color: black;
+}
+
+.semanticMethod {
+    background: aqua;
+    color: black;
+}
