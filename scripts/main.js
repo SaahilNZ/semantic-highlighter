@@ -20,38 +20,38 @@ function getDecorationsFromYaml(yamlText) {
     let decorations = [];
     try {
         var file = yaml.safeLoad(yamlText);
-        for (let fileChildIndex = 0; fileChildIndex < file.children.length; fileChildIndex++) {
-            const element = file.children[fileChildIndex];
-            if (element.type == "class") {
-                let decoration = {
-                    range: new monaco.Range(element.locationSpan.start[0], element.locationSpan.start[1],
-                        element.locationSpan.end[0], element.locationSpan.end[1]),
-                    options: {
-                        isWholeLine: true,
-                        inlineClassName: 'semanticClass'
-                    }
-                }
-                decorations.push(decoration);
-            }
-
-            for (let methodChildIndex = 0; methodChildIndex < element.children.length; methodChildIndex++) {
-                const elementChild = element.children[methodChildIndex];
-                if (elementChild.type = "method") {
-                    let decoration = {
-                        range: new monaco.Range(elementChild.locationSpan.start[0], elementChild.locationSpan.start[1],
-                            elementChild.locationSpan.end[0], elementChild.locationSpan.end[1]),
-                        options: {
-                            isWholeLine: true,
-                            inlineClassName: 'semanticMethod'
-                        }
-                    }
-                    decorations.push(decoration);
-                }
-            }
-        }
+        traverseYaml(file, decorations);
         return decorations;
     } catch (e) {
         console.log(e);
+    }
+}
+
+function traverseYaml(root, decorations) {
+    let decoration = {
+        range: new monaco.Range(root.locationSpan.start[0], root.locationSpan.start[1],
+            root.locationSpan.end[0], root.locationSpan.end[1]),
+        options: {
+            isWholeLine: true
+        }
+    }
+    switch (root.type) {
+        case "class":
+            decoration.options.inlineClassName = 'semanticClass';
+            break;
+        case "method":
+            decoration.options.inlineClassName = 'semanticMethod';
+            break;
+    
+        default:
+            break;
+    }
+    decorations.push(decoration);
+    if (root.children != null) {
+        for (let index = 0; index < root.children.length; index++) {
+            const child = root.children[index];
+            traverseYaml(child, decorations);
+        }
     }
 }
 
