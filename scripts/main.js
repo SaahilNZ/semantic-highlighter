@@ -1,5 +1,6 @@
 var yaml;
-var editor;
+var yamlEditor;
+var codeEditor;
 
 require.config({
     paths: {
@@ -9,9 +10,37 @@ require.config({
 
 require(['vs/editor/editor.main', 'lib/js-yaml.min'], function () {
     yaml = require('lib/js-yaml.min');
-    editor = monaco.editor.create(document.getElementById('container'), {
-        value:
-            'class Socket\r\n{\r\n   void Connect(string server)\r\n   {\r\n      SocketLibrary.Connect(mSocket, server);\r\n   }\r\n\r\n   void Disconnect()\r\n   {\r\n      SocketLibrary.Disconnect(mSocket);\r\n   }\r\n}',
+    var yamlText = `type: file
+name: FooSocket.csharp
+locationSpan : {start: [1, 0], end: [12, 1]}
+footerSpan : [0,-1]
+parsingErrorsDetected : false
+children:
+
+  - type : class
+    name : name of the first container
+    locationSpan : {start: [1, 0], end: [12, 1]}
+    headerSpan : [0, 16]
+    footerSpan : [186, 186]
+    children :
+
+    - type : method
+      name : Connect
+      locationSpan : {start: [3, 0], end: [7,2]}
+      span : [17, 109]
+
+    - type : method
+      name : Disconnect
+      locationSpan : {start: [8,0], end: [11,6]}
+      span : [110, 185]`;
+    yamlEditor = monaco.editor.create(document.getElementById('yamlContainer'), {
+        value: yamlText,
+        language: 'yaml'
+    });
+    
+    var codeText = 'class Socket\r\n{\r\n   void Connect(string server)\r\n   {\r\n      SocketLibrary.Connect(mSocket, server);\r\n   }\r\n\r\n   void Disconnect()\r\n   {\r\n      SocketLibrary.Disconnect(mSocket);\r\n   }\r\n}';
+    codeEditor = monaco.editor.create(document.getElementById('codeContainer'), {
+        value: codeText,
         language: 'csharp'
     });
 });
@@ -56,31 +85,10 @@ function traverseYaml(root, decorations) {
 }
 
 function highlightCode() {
-    var yamlText = `
-type: file
-name: FooSocket.csharp
-locationSpan : {start: [1, 0], end: [12, 1]}
-footerSpan : [0,-1]
-parsingErrorsDetected : false
-children:
+    let decorations = codeEditor.deltaDecorations([], getDecorationsFromYaml(yamlEditor.getValue()));
+}
 
-  - type : class
-    name : name of the first container
-    locationSpan : {start: [1, 0], end: [12, 1]}
-    headerSpan : [0, 16]
-    footerSpan : [186, 186]
-    children :
-
-    - type : method
-      name : Connect
-      locationSpan : {start: [3, 0], end: [7,2]}
-      span : [17, 109]
-
-    - type : method
-      name : Disconnect
-      locationSpan : {start: [8,0], end: [11,6]}
-      span : [110, 185]
-        `;
-
-    let decorations = editor.deltaDecorations([], getDecorationsFromYaml(yamlText));
+function resizeEditors() {
+    yamlEditor.layout();
+    codeEditor.layout();
 }

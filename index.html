@@ -9,8 +9,31 @@
         <script data-main="scripts/main.js" src="scripts/require.js"></script>
     </head>
     
-    <body>
-        <div id="container" style="width:800px;height:600px;border:1px solid grey"></div>
-        <input type="button" value="Highlight" onclick="highlightCode()">
+    <body onresize="resizeEditors()">
+        <div class="flexContainer">
+            <div class="contentContainerLarge">
+                <p class="contentHeader">YAML</p>
+                <div id="yamlContainer" class="monacoContainer"></div>
+            </div>
+            <div class="contentContainerSmall">
+                <p class="contentHeader">YAML Tree</p>
+                <div class="treeContainer">
+                    <ul id="yamlTree">
+                        <li class="treeNode">Socket</li>
+                        <li>
+                            <ul>
+                                <li class="treeNode">Connect</li>
+                                <li class="treeNode">Disconnect</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="contentContainerLarge">
+                <p class="contentHeader">Code</p>
+                <div id="codeContainer" class="monacoContainer"></div>
+            </div>
+        </div>
+        <input type="button" value="Highlight" onclick="highlightCode()" style="margin-left: 1em">
     </body>
 </html>
