@@ -39,7 +39,7 @@ children:
         value: yamlText,
         language: 'yaml'
     });
-    
+
     var codeText = 'class Socket\r\n{\r\n   void Connect(string server)\r\n   {\r\n      SocketLibrary.Connect(mSocket, server);\r\n   }\r\n\r\n   void Disconnect()\r\n   {\r\n      SocketLibrary.Disconnect(mSocket);\r\n   }\r\n}';
     codeEditor = monaco.editor.create(document.getElementById('codeContainer'), {
         value: codeText,
@@ -51,7 +51,7 @@ function populateTree() {
     clearHighlights();
     try {
         var file = yaml.safeLoad(yamlEditor.getValue());
-        
+
         let yamlTree = document.getElementById("yamlTree");
         while (yamlTree.firstChild) {
             yamlTree.removeChild(yamlTree.firstChild);
@@ -71,12 +71,7 @@ function addTreeNodes(yamlObject, parentNode) {
         nodeSpan.addEventListener("click", function () {
             clearNodes();
             nodeSpan.classList.add("treeNodeSelected");
-            highlightCode(new monaco.Range(
-                yamlObject.locationSpan.start[0],
-                yamlObject.locationSpan.start[1],
-                yamlObject.locationSpan.end[0],
-                yamlObject.locationSpan.end[1]
-            ));
+            highlightCode(yamlObject);
         });
 
         treeNodes.push(nodeSpan);
@@ -100,24 +95,126 @@ function clearNodes() {
     }
 }
 
-function highlightCode(range) {
-    if (decorations == null) {
-        decorations = codeEditor.deltaDecorations([], [
-            { range: range, options: { isWholeLine: true, inlineClassName: 'highlighted' } }
-        ]);
-    } else {
-        decorations = codeEditor.deltaDecorations(decorations, [
-            { range: range, options: { isWholeLine: true, inlineClassName: 'highlighted' } }
-        ]);
+function highlightCode(yamlObject) {
+    clearHighlights();
+    let decorationList = [];
+    decorationList.push({
+        range: new monaco.Range(
+            yamlObject.locationSpan.start[0],
+            yamlObject.locationSpan.start[1],
+            yamlObject.locationSpan.end[0],
+            yamlObject.locationSpan.end[1]
+        ),
+        options: {
+            isWholeLine: true,
+            inlineClassName: 'gaps',
+            zIndex: 0
+        }
+    });
+
+    if (yamlObject.headerSpan != null) {
+        let headerRange = calculateRangeFromSpan(yamlObject.headerSpan);
+        decorationList.push({
+            range: headerRange,
+            options: {
+                isWholeLine: true,
+                inlineClassName: 'highlighted',
+                zIndex: 2
+            }
+        });
     }
+
+    if (yamlObject.footerSpan != null) {
+        let footerRange = calculateRangeFromSpan(yamlObject.footerSpan);
+        decorationList.push({
+            range: footerRange,
+            options: {
+                isWholeLine: true,
+                inlineClassName: 'highlighted',
+                zIndex: 2
+            }
+        });
+    }
+
+    if (yamlObject.span != null) {
+        let range = calculateRangeFromSpan(yamlObject.span);
+        decorationList.push({
+            range: range,
+            options: {
+                isWholeLine: true,
+                inlineClassName: 'highlighted',
+                zIndex: 2
+            }
+        });
+    }
+    
+    if (yamlObject.children != null) {
+        yamlObject.children.forEach(child => {
+            decorationList.push({
+                range: new monaco.Range(
+                    child.locationSpan.start[0],
+                    child.locationSpan.start[1],
+                    child.locationSpan.end[0],
+                    child.locationSpan.end[1]),
+                options: {
+                    isWholeLine: true,
+                    inlineClassName: 'child',
+                    zIndex: 3
+                }
+            });
+        });
+    }
+    decorations = codeEditor.deltaDecorations(decorations, decorationList);
 }
 
 function clearHighlights() {
     if (decorations == null) {
-        decorations = codeEditor.deltaDecorations([], []);
+        decorations = codeEditor.deltaDecorations([], [{ range: new monaco.Range(1, 1, 1, 1), options: {} }]);
     } else {
-        decorations = codeEditor.deltaDecorations(decorations, []);
+        decorations = codeEditor.deltaDecorations(decorations, [{ range: new monaco.Range(1, 1, 1, 1), options: {} }]);
     }
+}
+
+function calculateRangeFromSpan(span) {
+    startRow = 1;
+    startColumn = 0;
+    endRow = 1;
+    endColumn = 0;
+
+    let code = codeEditor.getValue();
+    if (span[0] != 0) {
+        for (let i = 0; i < span[0]; i++) {
+            let char = code[i];
+            if (char == '\n') {
+                startColumn = 0;
+                startRow++;
+            }
+            startColumn++;
+        }
+        startColumn--;
+    }
+    if (span[1] == -1) {
+        for (let i = 0; i < code.length; i++) {
+            let char = code[i];
+            if (char == '\n') {
+                endColumn = 0;
+                endRow++;
+            }
+            endColumn++;
+        }
+        endColumn--;
+    } else if (span[1] != 0) {
+        for (let i = 0; i < span[1]; i++) {
+            let char = code[i];
+            if (char == '\n') {
+                endColumn = 0;
+                endRow++;
+            }
+            endColumn++;
+        }
+        endColumn--;
+    }
+    return new monaco.Range(startRow, startColumn, endRow, endColumn);
 }
 
 function resizeEditors() {

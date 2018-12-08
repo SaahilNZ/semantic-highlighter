@@ -48,7 +48,17 @@
     background: aqua;
 }
 
+.gaps {
+    background: red;
+    color: white;
+}
+
 .highlighted {
     background: lime;
+    color: black;
+}
+
+.child {
+    background: aqua;
     color: black;
 }
