@@ -1,6 +1,8 @@
 var yaml;
 var yamlEditor;
 var codeEditor;
+var decorations;
+var treeNodes = [];
 
 require.config({
     paths: {
@@ -45,63 +47,40 @@ children:
     });
 });
 
-function getDecorationsFromYaml(yamlText) {
-    let decorations = [];
+function populateTree() {
+    clearHighlights();
     try {
-        var file = yaml.safeLoad(yamlText);
-        populateTree(file);
-        traverseYaml(file, decorations);
-        return decorations;
+        var file = yaml.safeLoad(yamlEditor.getValue());
+        
+        let yamlTree = document.getElementById("yamlTree");
+        while (yamlTree.firstChild) {
+            yamlTree.removeChild(yamlTree.firstChild);
+        }
+        addTreeNodes(file, yamlTree);
     } catch (e) {
         console.log(e);
     }
 }
 
-function traverseYaml(root, decorations) {
-    let decoration = {
-        range: new monaco.Range(root.locationSpan.start[0], root.locationSpan.start[1],
-            root.locationSpan.end[0], root.locationSpan.end[1]),
-        options: {
-            isWholeLine: true
-        }
-    }
-    switch (root.type) {
-        case "class":
-            decoration.options.inlineClassName = 'semanticClass';
-            break;
-        case "method":
-            decoration.options.inlineClassName = 'semanticMethod';
-            break;
-    
-        default:
-            break;
-    }
-    decorations.push(decoration);
-    if (root.children != null) {
-        for (let index = 0; index < root.children.length; index++) {
-            const child = root.children[index];
-            traverseYaml(child, decorations);
-        }
-    }
-}
-
-function highlightCode() {
-    let decorations = codeEditor.deltaDecorations([], getDecorationsFromYaml(yamlEditor.getValue()));
-}
-
-function populateTree(yamlObject) {
-    let yamlTree = document.getElementById("yamlTree");
-    while (yamlTree.firstChild) {
-        yamlTree.removeChild(yamlTree.firstChild);
-    }
-    addTreeNodes(yamlObject, yamlTree);
-}
-
 function addTreeNodes(yamlObject, parentNode) {
     if (yamlObject != null) {
         let node = document.createElement("li");
-        node.className = "treeNode";
-        node.innerText = yamlObject.name;
+        let nodeSpan = document.createElement("span");
+        nodeSpan.classList.add("treeNode");
+        nodeSpan.innerHTML = yamlObject.name;
+        nodeSpan.addEventListener("click", function () {
+            clearNodes();
+            nodeSpan.classList.add("treeNodeSelected");
+            highlightCode(new monaco.Range(
+                yamlObject.locationSpan.start[0],
+                yamlObject.locationSpan.start[1],
+                yamlObject.locationSpan.end[0],
+                yamlObject.locationSpan.end[1]
+            ));
+        });
+
+        treeNodes.push(nodeSpan);
+        node.appendChild(nodeSpan);
         parentNode.appendChild(node);
         if (yamlObject.children != null) {
             let branch = document.createElement("ul");
@@ -111,6 +90,33 @@ function addTreeNodes(yamlObject, parentNode) {
                 addTreeNodes(child, branch);
             }
         }
+    }
+}
+
+function clearNodes() {
+    for (let index = 0; index < treeNodes.length; index++) {
+        const node = treeNodes[index];
+        node.classList.remove("treeNodeSelected");
+    }
+}
+
+function highlightCode(range) {
+    if (decorations == null) {
+        decorations = codeEditor.deltaDecorations([], [
+            { range: range, options: { isWholeLine: true, inlineClassName: 'highlighted' } }
+        ]);
+    } else {
+        decorations = codeEditor.deltaDecorations(decorations, [
+            { range: range, options: { isWholeLine: true, inlineClassName: 'highlighted' } }
+        ]);
+    }
+}
+
+function clearHighlights() {
+    if (decorations == null) {
+        decorations = codeEditor.deltaDecorations([], []);
+    } else {
+        decorations = codeEditor.deltaDecorations(decorations, []);
     }
 }
 

@@ -18,15 +18,7 @@
             <div class="contentContainerSmall">
                 <p class="contentHeader">YAML Tree</p>
                 <div class="treeContainer">
-                    <ul id="yamlTree">
-                        <!-- <li class="treeNode">Socket</li>
-                        <li>
-                            <ul>
-                                <li class="treeNode">Connect</li>
-                                <li class="treeNode">Disconnect</li>
-                            </ul>
-                        </li> -->
-                    </ul>
+                    <ul id="yamlTree"></ul>
                 </div>
             </div>
             <div class="contentContainerLarge">
@@ -34,6 +26,6 @@
                 <div id="codeContainer" class="monacoContainer"></div>
             </div>
         </div>
-        <input type="button" value="Highlight" onclick="highlightCode()" style="margin-left: 1em">
+        <input type="button" value="Parse" onclick="populateTree()" style="margin-left: 1em">
     </body>
 </html>

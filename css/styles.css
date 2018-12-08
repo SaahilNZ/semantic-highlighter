@@ -44,12 +44,11 @@
     user-select: none;
 }
 
-.semanticClass {
-    background: lime;
-    color: black;
+.treeNodeSelected {
+    background: aqua;
 }
 
-.semanticMethod {
-    background: aqua;
+.highlighted {
+    background: lime;
     color: black;
 }
