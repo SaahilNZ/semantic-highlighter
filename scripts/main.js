@@ -43,7 +43,7 @@ children:
     var codeText = 'class Socket\r\n{\r\n   void Connect(string server)\r\n   {\r\n      SocketLibrary.Connect(mSocket, server);\r\n   }\r\n\r\n   void Disconnect()\r\n   {\r\n      SocketLibrary.Disconnect(mSocket);\r\n   }\r\n}';
     codeEditor = monaco.editor.create(document.getElementById('codeContainer'), {
         value: codeText,
-        language: 'csharp'
+        language: 'plaintext'
     });
 });
 
