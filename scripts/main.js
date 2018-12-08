@@ -18,7 +18,7 @@ parsingErrorsDetected : false
 children:
 
   - type : class
-    name : name of the first container
+    name : Socket
     locationSpan : {start: [1, 0], end: [12, 1]}
     headerSpan : [0, 16]
     footerSpan : [186, 186]
@@ -49,6 +49,7 @@ function getDecorationsFromYaml(yamlText) {
     let decorations = [];
     try {
         var file = yaml.safeLoad(yamlText);
+        populateTree(file);
         traverseYaml(file, decorations);
         return decorations;
     } catch (e) {
@@ -86,6 +87,31 @@ function traverseYaml(root, decorations) {
 
 function highlightCode() {
     let decorations = codeEditor.deltaDecorations([], getDecorationsFromYaml(yamlEditor.getValue()));
+}
+
+function populateTree(yamlObject) {
+    let yamlTree = document.getElementById("yamlTree");
+    while (yamlTree.firstChild) {
+        yamlTree.removeChild(yamlTree.firstChild);
+    }
+    addTreeNodes(yamlObject, yamlTree);
+}
+
+function addTreeNodes(yamlObject, parentNode) {
+    if (yamlObject != null) {
+        let node = document.createElement("li");
+        node.className = "treeNode";
+        node.innerText = yamlObject.name;
+        parentNode.appendChild(node);
+        if (yamlObject.children != null) {
+            let branch = document.createElement("ul");
+            parentNode.appendChild(branch);
+            for (let index = 0; index < yamlObject.children.length; index++) {
+                const child = yamlObject.children[index];
+                addTreeNodes(child, branch);
+            }
+        }
+    }
 }
 
 function resizeEditors() {
