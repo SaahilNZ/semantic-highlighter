@@ -1,0 +1,64 @@
+.flexContainer {
+    display: flex;
+}
+
+.contentContainerLarge {
+    width: 40%;
+}
+
+.contentContainerSmall {
+    width: 20%;
+}
+
+.treeContainer {
+    height: 600px;
+    border:1px solid grey;
+    margin: 1em;
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.contentHeader {
+    margin-left: 1em;
+}
+
+.monacoContainer {
+    height:600px;
+    border:1px solid grey;
+    margin: 1em;
+    flex-grow: 1;
+}
+
+#yamlTree, ul {
+    list-style-type: none;
+    font-family: monospace;
+}
+
+#yamlTree {
+    margin: 1em;
+    padding: 0;
+}
+
+.treeNode {
+    cursor: pointer;
+    user-select: none;
+}
+
+.treeNodeSelected {
+    background: aqua;
+}
+
+.gaps {
+    background: red;
+    color: white;
+}
+
+.highlighted {
+    background: lime;
+    color: black;
+}
+
+.child {
+    background: aqua;
+    color: black;
+}

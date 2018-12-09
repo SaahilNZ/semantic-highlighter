@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Semantic Highlighter</title>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <link rel="stylesheet" type="text/css" href="css/styles.css">
+        <script data-main="scripts/main.js" src="scripts/require.js"></script>
+    </head>
+    
+    <body onresize="resizeEditors()">
+        <div class="flexContainer">
+            <div class="contentContainerLarge">
+                <p class="contentHeader">YAML</p>
+                <div id="yamlContainer" class="monacoContainer"></div>
+            </div>
+            <div class="contentContainerSmall">
+                <p class="contentHeader">YAML Tree</p>
+                <div class="treeContainer">
+                    <ul id="yamlTree"></ul>
+                </div>
+            </div>
+            <div class="contentContainerLarge">
+                <p class="contentHeader">Code</p>
+                <div id="codeContainer" class="monacoContainer"></div>
+            </div>
+        </div>
+        <input type="button" value="Parse" onclick="populateTree()" style="margin-left: 1em">
+    </body>
+</html>
